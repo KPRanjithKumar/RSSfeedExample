@@ -12,6 +12,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var listView: ListView
     var topSongs = mutableListOf<Song>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -25,7 +26,10 @@ class MainActivity : AppCompatActivity() {
             val url = URL("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topsongs/limit=100/xml")
             val urlConnection = url.openConnection() as HttpURLConnection
             topSongs =
-                urlConnection.getInputStream()?.let { parser.parse(it) } as MutableList<Song>
+                urlConnection.getInputStream()?.let {
+                    parser.parse(it)
+                }
+                        as MutableList<Song>
             return topSongs
         }
 

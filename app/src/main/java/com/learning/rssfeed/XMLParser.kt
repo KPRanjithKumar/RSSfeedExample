@@ -4,7 +4,7 @@ import android.util.Xml
 import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
 
-data class Song(val title: String?, val name: String?, val link: String?) {
+data class Song(val title: String?, val name: String?) {
     override fun toString(): String = title!!
 }
 
@@ -22,17 +22,21 @@ class XMLParser {
     }
 
     private fun readSongsRssFeed(parser: XmlPullParser): List<Song> {
+
         val songs = mutableListOf<Song>()
+
         parser.require(XmlPullParser.START_TAG, ns, "feed")
+
         while (parser.next() != XmlPullParser.END_TAG) {
+
             if (parser.eventType != XmlPullParser.START_TAG) {
                 continue
             }
+
             if (parser.name == "entry") {
                 parser.require(XmlPullParser.START_TAG, ns, "entry")
                 var title: String? = null
                 var name: String? = null
-                var link: String? = null
                 while (parser.next() != XmlPullParser.END_TAG) {
                     if (parser.eventType != XmlPullParser.START_TAG) {
                         continue
@@ -40,11 +44,10 @@ class XMLParser {
                     when (parser.name) {
                         "title" -> title = readTitle(parser)
                         "im:name" -> name = readName(parser)
-                        "link" -> link = readLink(parser)
                         else -> skip(parser)
                     }
                 }
-                songs.add(Song(title,name,link))
+                songs.add(Song(title,name))
             } else {
                 skip(parser)
             }
@@ -57,23 +60,6 @@ class XMLParser {
         val title = readText(parser)
         parser.require(XmlPullParser.END_TAG, ns, "title")
         return title
-    }
-
-    private fun readLink(parser: XmlPullParser): String {
-        var link = ""
-        parser.require(XmlPullParser.START_TAG, ns, "link")
-        val tag = parser.name
-        val relType = parser.getAttributeValue(null, "rel")
-        if (tag == "link") {
-            if (relType == "alternate") {
-                link = parser.getAttributeValue(null, "href")
-                parser.nextTag()
-            }else{
-                skip(parser);
-            }
-        }
-        parser.require(XmlPullParser.END_TAG, ns, "link")
-        return link
     }
 
     private fun readName(parser: XmlPullParser): String {
